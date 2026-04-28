@@ -1,0 +1,2 @@
+# snowflake-python-sp-handson
+SnowflakeのStored Procedure機能を利用したPython実装について学ぶためのリポジトリです。
