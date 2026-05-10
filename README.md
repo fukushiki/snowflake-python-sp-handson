@@ -40,6 +40,19 @@ Titanicデータセットを用いてSnowflakeのStored Procedure機能(Python�
 
 ```
 
+## データレイヤー構成
+
+メダリオンアーキテクチャ（STAGE → BRONZE → SILVER → GOLD）を採用しています。
+
+| レイヤー | スキーマ | テーブル | 内容 |
+|---|---|---|---|
+| STAGE | `STAGE` | `STG_TITANIC` | CSV・Pythonファイルを格納する内部ステージ |
+| BRONZE | `BRONZE` | `RAW_TITANIC` | ステージから COPY INTO した生データ |
+| SILVER | `SILVER` | `FEATURE_TITANIC` | 欠損補完・エンコードを行った特徴量テーブル |
+| GOLD | `GOLD` | `PREDICTION_TITANIC` | 機械学習モデルによる生存予測結果 |
+
+各レイヤー間の変換は Python Stored Procedure（`SP_BRONZE_TO_SILVER`, `SP_SILVER_TO_GOLD`）で実装しています。
+
 ## データセットのライセンス
 このProjectではKaggleのtitanicデータセットを利用しています。  
 'scripts/fetch_titanic_csv.sh'(もしくは.ps1)を用いてダウンロードしてきてください.
