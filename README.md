@@ -55,7 +55,7 @@ Titanicデータセットを用いてSnowflakeのStored Procedure機能(Python�
 
 ## データセットのライセンス
 このProjectではKaggleのtitanicデータセットを利用しています。  
-'scripts/fetch_titanic_csv.sh'(もしくは.ps1)を用いてダウンロードしてきてください.
+`scripts/fetch_titanic_csv.sh`(もしくは`.ps1`)を用いてダウンロードしてきてください。
 - Dataset: `yasserh/titanic-dataset`
 - License: `CC0: Public Domain (CC0-1.0)`
 - URL: [Kaggle - yasserh/titanic-dataset](https://www.kaggle.com/datasets/yasserh/titanic-dataset)
