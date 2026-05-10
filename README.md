@@ -134,3 +134,35 @@ snow connection list
 snow connection test --connection <connection-name>
 snow sql -q "select current_version();" --connection <connection-name>
 ```
+
+## Snowflake CLI実行例
+
+Snowsight（Worksheet）で確認済みの手順を、以下のCLIで再現する。  
+これらの内容をまとめたものが'scripts/run_all'(sh/ps1)に記載されている。
+
+```bash
+# 接続確認
+snow connection test --connection <connection-name>
+
+# 1) 環境セットアップ
+snow sql -f src/snowflake/workspace/001_Setup.sql --connection <connection-name>
+
+# 2) STAGE/FILE FORMAT作成
+snow sql -f src/snowflake/workspace/002_LoadStage.sql --connection <connection-name>
+
+# 3) CSVアップロード（STAGE/ステージ/data）
+snow sql -q "PUT file://data/Titanic-Dataset.csv @TITANIC_DB.STAGE.STG_TITANIC/data/ OVERWRITE = TRUE AUTO_COMPRESS = FALSE;" --connection <connection-name>
+
+# 4) STAGE -> BRONZE
+snow sql -f src/snowflake/workspace/003_Stage_to_Bronze.sql --connection <connection-name>
+
+# 5) Pythonアップロード（STAGE/ステージ/python）
+snow sql -q "PUT file://src/snowflake/python/transform.py @TITANIC_DB.STAGE.STG_TITANIC/python/ OVERWRITE = TRUE AUTO_COMPRESS = FALSE;" --connection <connection-name>
+snow sql -q "PUT file://src/snowflake/python/predict.py @TITANIC_DB.STAGE.STG_TITANIC/python/ OVERWRITE = TRUE AUTO_COMPRESS = FALSE;" --connection <connection-name>
+
+# 6) BRONZE -> SILVER
+snow sql -f src/snowflake/workspace/004_Bronze_to_Silver_import.sql --connection <connection-name>
+
+# 7) SILVER -> GOLD
+snow sql -f src/snowflake/workspace/005_Silver_to_Gold_import.sql --connection <connection-name>
+```
