@@ -8,7 +8,7 @@ type: README
 # snowflake-python-sp-handson
 
 SnowflakeのStored Procedure機能を利用したPython実装について学ぶためのリポジトリです。  
-Ka
+Titanicデータセットを用いてSnowflakeのStored Procedure機能(Python実行)を学ぶことができます。  
 詳しい内容はZennに書いた記事[xxx](xxx)を参考にしてください。  
 
 
@@ -41,7 +41,9 @@ Ka
 
 ```
 
-## ライセンス
+## データセットのライセンス
+このProjectではKaggleのtitanicデータセットを利用しています。  
+'scripts/fetch_titanic_csv.sh'(もしくは.ps1)を用いてダウンロードしてきてください.
 - Dataset: `yasserh/titanic-dataset`
 - License: `CC0: Public Domain (CC0-1.0)`
 - URL: [Kaggle - yasserh/titanic-dataset](https://www.kaggle.com/datasets/yasserh/titanic-dataset)
