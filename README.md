@@ -16,28 +16,27 @@ Titanicデータセットを用いてSnowflakeのStored Procedure機能(Python�
 
 ```txt
 .
-└── Py-Stored-Procedure/
-    ├── data/
-    │   └── Titanic-Dataset.csv         # fetch_titanic_csv* で取得
-    ├── scripts/
-    │   ├── fetch_titanic_csv.sh        # Kaggle からデータ取得 (Mac/Linux)
-    │   ├── fetch_titanic_csv.ps1       # Kaggle からデータ取得 (Windows)
-    │   ├── run_all.sh                  # パイプライン一括実行 (Mac/Linux)
-    │   └── run_all.ps1                 # パイプライン一括実行 (Windows)
-    ├── src/
-    │   └── snowflake/
-    │       ├── python/
-    │       │   ├── transform.py        # BRONZE → SILVER 変換ロジック
-    │       │   └── predict.py          # SILVER → GOLD 予測ロジック
-    │       └── workspace/
-    │           ├── 001_Setup.sql           # DB / Schema / WH 作成
-    │           ├── 002_LoadStage.sql        # Stage / File Format 作成
-    │           ├── 003_Stage_to_Bronze.sql  # COPY INTO → RAW_TITANIC
-    │           ├── 004_Bronze_to_Silver_inline.sql  # SP (インライン定義)
-    │           ├── 004_Bronze_to_Silver_import.sql  # SP (IMPORTS 方式)
-    │           ├── 005_Silver_to_Gold_import.sql    # SP (IMPORTS 方式)
-    │           └── 999_Cleanup.sql         # 全オブジェクト削除
-    └── README.md
+├── data/
+│   └── Titanic-Dataset.csv             # fetch_titanic_csv* で取得
+├── scripts/
+│   ├── fetch_titanic_csv.sh            # Kaggle からデータ取得 (Mac/Linux)
+│   ├── fetch_titanic_csv.ps1           # Kaggle からデータ取得 (Windows)
+│   ├── run_all.sh                      # パイプライン一括実行 (Mac/Linux)
+│   └── run_all.ps1                     # パイプライン一括実行 (Windows)
+├── src/
+│   └── snowflake/
+│       ├── python/
+│       │   ├── transform.py            # BRONZE → SILVER 変換ロジック
+│       │   └── predict.py              # SILVER → GOLD 予測ロジック
+│       └── workspace/
+│           ├── 001_Setup.sql           # DB / Schema / WH 作成
+│           ├── 002_LoadStage.sql       # Stage / File Format 作成
+│           ├── 003_Stage_to_Bronze.sql # COPY INTO → RAW_TITANIC
+│           ├── 004_Bronze_to_Silver_inline.sql  # SP (インライン定義)
+│           ├── 004_Bronze_to_Silver_import.sql  # SP (IMPORTS 方式)
+│           ├── 005_Silver_to_Gold_import.sql    # SP (IMPORTS 方式)
+│           └── 999_Cleanup.sql         # 全オブジェクト削除
+└── README.md
 
 ```
 
