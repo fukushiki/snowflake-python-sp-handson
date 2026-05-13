@@ -1,0 +1,54 @@
+flowchart TD
+  UI["🖥️ Snowsight Worksheet\n(手動実行)"]
+
+  subgraph ACCOUNT["ACCOUNT レベル"]
+    ROLE["⚙️ USE ROLE\nACCOUNTADMIN"]
+    WH["🗃️ WAREHOUSE\nTITANIC_WH"]
+  end
+
+  subgraph DB["TITANIC_DB"]
+    DBN["🗃️ DATABASE\nTITANIC_DB"]
+    STAGE["🗃️ SCHEMA\nSTAGE"]
+    BRONZE["🗃️ SCHEMA\nBRONZE"]
+    SILVER["🗃️ SCHEMA\nSILVER"]
+    GOLD["🗃️ SCHEMA\nGOLD"]
+  end
+
+  subgraph GRANT["権限移譲"]
+    OWNDB["⚙️ GRANT OWNERSHIP\nDATABASE -> SYSADMIN"]
+    OWNSCH["⚙️ GRANT OWNERSHIP\nSCHEMAs -> SYSADMIN"]
+    OWNWH["⚙️ GRANT OWNERSHIP\nWAREHOUSE -> SYSADMIN"]
+  end
+
+  UI -->|"USE ROLE ACCOUNTADMIN"| ROLE
+  ROLE -->|"CREATE DATABASE"| DBN
+  ROLE -->|"CREATE SCHEMA"| STAGE
+  ROLE -->|"CREATE SCHEMA"| BRONZE
+  ROLE -->|"CREATE SCHEMA"| SILVER
+  ROLE -->|"CREATE SCHEMA"| GOLD
+  ROLE -->|"CREATE WAREHOUSE"| WH
+  ROLE --> DBN
+  DBN --> OWNDB
+  STAGE --> OWNSCH
+  BRONZE --> OWNSCH
+  SILVER --> OWNSCH
+  GOLD --> OWNSCH
+  WH --> OWNWH
+
+  classDef extFile fill:#e8f4f8,stroke:#4a90d9,color:#1a1a2e
+  classDef stageLayer fill:#f0f0f0,stroke:#888888,color:#1a1a2e
+  classDef bronzeLayer fill:#fdf0e0,stroke:#cd7f32,color:#5c3d11
+  classDef silverLayer fill:#f0f0f0,stroke:#a8a8a8,color:#2c2c2c
+  classDef goldLayer fill:#fffbe6,stroke:#f5a623,color:#5c4a00
+  classDef spNode fill:#eaf4ea,stroke:#4caf50,color:#1b5e20
+
+  class UI extFile
+  class STAGE stageLayer
+  class BRONZE bronzeLayer
+  class SILVER silverLayer
+  class GOLD goldLayer
+  class ROLE,OWNDB,OWNSCH,OWNWH spNode
+
+  style ACCOUNT fill:#f7f7f7,stroke:#bbbbbb
+  style DB fill:#fef6ec,stroke:#e0a060
+  style GRANT fill:#f5f5f5,stroke:#c0c0c0

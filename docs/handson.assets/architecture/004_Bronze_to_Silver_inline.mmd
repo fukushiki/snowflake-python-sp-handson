@@ -1,0 +1,28 @@
+flowchart TD
+  UI["🖥️ Snowsight Worksheet\n(手動実行)"]
+
+  subgraph BRONZE["BRONZEスキーマ"]
+    RAW["🗃️ テーブル\nRAW_TITANIC"]
+  end
+
+  subgraph SILVER["SILVERスキーマ"]
+    FEAT["🗃️ テーブル\nFEATURE_TITANIC"]
+    SP["⚙️ ストアドプロシージャ\nSP_BRONZE_TO_SILVER\n(inline Python)"]
+  end
+
+  RAW -->|"SP内でto_pandas"| SP
+  SP -->|"欠損補完/エンコード/One-hot"| FEAT
+  UI -->|"CREATE TABLE/PROCEDURE + CALL"| SP
+
+  classDef extFile fill:#e8f4f8,stroke:#4a90d9,color:#1a1a2e
+  classDef bronzeLayer fill:#fdf0e0,stroke:#cd7f32,color:#5c3d11
+  classDef silverLayer fill:#f0f0f0,stroke:#a8a8a8,color:#2c2c2c
+  classDef spNode fill:#eaf4ea,stroke:#4caf50,color:#1b5e20
+
+  class UI extFile
+  class RAW bronzeLayer
+  class FEAT silverLayer
+  class SP spNode
+
+  style BRONZE fill:#fef6ec,stroke:#e0a060
+  style SILVER fill:#f5f5f5,stroke:#c0c0c0

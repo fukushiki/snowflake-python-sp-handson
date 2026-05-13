@@ -1,0 +1,26 @@
+flowchart TD
+  UI["🖥️ Snowsight Worksheet\n(手動実行)"]
+
+  subgraph STAGE["STAGEスキーマ"]
+    FMT["🗂️ FILE FORMAT\nFMT_CSV_TITANIC"]
+    STG["📦 内部ステージ\nSTG_TITANIC/data/"]
+  end
+
+  subgraph BRONZE["BRONZEスキーマ"]
+    RAW["🗃️ テーブル\nRAW_TITANIC"]
+  end
+
+  UI -->|"INFER_SCHEMA + USING TEMPLATE"| RAW
+  STG -->|"COPY INTO"| RAW
+  FMT -->|"FILE_FORMAT指定"| RAW
+
+  classDef extFile fill:#e8f4f8,stroke:#4a90d9,color:#1a1a2e
+  classDef stageLayer fill:#f0f0f0,stroke:#888888,color:#1a1a2e
+  classDef bronzeLayer fill:#fdf0e0,stroke:#cd7f32,color:#5c3d11
+
+  class UI extFile
+  class FMT,STG stageLayer
+  class RAW bronzeLayer
+
+  style STAGE fill:#f7f7f7,stroke:#bbbbbb
+  style BRONZE fill:#fef6ec,stroke:#e0a060
