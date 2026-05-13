@@ -1,0 +1,24 @@
+flowchart TD
+  UI_SQL["🖥️ Snowsight\nWorksheet（SQL実行）"]
+  UI_FILE["🖥️ Snowsight\nFiles（ファイルアップロード）"]
+  CSV["📄 CSVファイル\n(Titanicデータ)"]
+
+  subgraph STAGE["STAGEスキーマ"]
+    FMT["🗂️ FILE FORMAT\nFMT_CSV_TITANIC"]
+    STG["📦 内部ステージ\nSTG_TITANIC"]
+  end
+
+  UI_SQL -->|"CREATE FILE FORMAT"| FMT
+  UI_SQL -->|"CREATE STAGE"| STG
+  UI_FILE -->|"Upload CSV"| STG
+  CSV -->|"data/ にアップロード"| STG
+  FMT -->|"FILE_FORMATとして紐付け"| STG
+
+  classDef extFile fill:#e8f4f8,stroke:#4a90d9,color:#1a1a2e
+  classDef stageLayer fill:#f0f0f0,stroke:#888888,color:#1a1a2e
+  classDef spNode fill:#eaf4ea,stroke:#4caf50,color:#1b5e20
+
+  class UI_SQL,UI_FILE,CSV extFile
+  class FMT,STG stageLayer
+
+  style STAGE fill:#f7f7f7,stroke:#bbbbbb

@@ -1,0 +1,56 @@
+flowchart TD
+  CSV[("📄 CSVファイル\n(Titanicデータ)")]
+  PY_T[["🐍 transform.py\n(クレンジング・特徴量エンジニアリング)"]]
+  PY_P[["🐍 predict.py\n(ML学習・予測)"]]
+
+  subgraph STAGE["STAGEスキーマ"]
+    FMT["🗂️ FILE FORMAT\nFMT_CSV_TITANIC"]
+    STG["📦 内部ステージ\nSTG_TITANIC"]
+  end
+
+  subgraph BRONZE["BRONZEスキーマ"]
+    RAW["🗃️ テーブル\nRAW_TITANIC"]
+  end
+
+  subgraph SILVER["SILVERスキーマ"]
+    FEAT["🗃️ テーブル\nFEATURE_TITANIC"]
+    SP_T(["⚙️ ストアドプロシージャ\nSP_BRONZE_TO_SILVER"])
+  end
+
+  subgraph GOLD["GOLDスキーマ"]
+    PRED["🗃️ テーブル\nPREDICTION_TITANIC"]
+    SP_P(["⚙️ ストアドプロシージャ\nSP_SILVER_TO_GOLD"])
+  end
+
+  CSV -->|"PUT data/ へアップロード"| STG
+  FMT -->|"ファイル形式を定義"| STG
+  STG -->|"INFER_SCHEMA + COPY INTO"| RAW
+
+  PY_T -->|"PUT python/ へアップロード"| STG
+  STG -->|"IMPORTS: transform.py"| SP_T
+  RAW -->|"CALL SP: 読み込み元"| SP_T
+  SP_T -->|"Python処理 + write_pandas(overwrite)"| FEAT
+
+  PY_P -->|"PUT python/ へアップロード"| STG
+  STG -->|"IMPORTS: predict.py"| SP_P
+  FEAT -->|"CALL SP: 学習・予測入力"| SP_P
+  SP_P -->|"Python処理 + write_pandas(overwrite)"| PRED
+
+  classDef extFile fill:#e8f4f8,stroke:#4a90d9,color:#1a1a2e
+  classDef stageLayer fill:#f0f0f0,stroke:#888888,color:#1a1a2e
+  classDef bronzeLayer fill:#fdf0e0,stroke:#cd7f32,color:#5c3d11
+  classDef silverLayer fill:#f0f0f0,stroke:#a8a8a8,color:#2c2c2c
+  classDef goldLayer fill:#fffbe6,stroke:#f5a623,color:#5c4a00
+  classDef spNode fill:#eaf4ea,stroke:#4caf50,color:#1b5e20
+
+  class CSV,PY_T,PY_P extFile
+  class FMT,STG stageLayer
+  class RAW bronzeLayer
+  class FEAT silverLayer
+  class PRED goldLayer
+  class SP_T,SP_P spNode
+
+  style STAGE fill:#f7f7f7,stroke:#bbbbbb
+  style BRONZE fill:#fef6ec,stroke:#e0a060
+  style SILVER fill:#f5f5f5,stroke:#c0c0c0
+  style GOLD fill:#fffdf0,stroke:#f0c040

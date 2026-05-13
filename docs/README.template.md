@@ -17,10 +17,10 @@ Titanicデータセットを用いてSnowflakeのStored Procedure機能(Python�
 ```txt
 .
 ├── data/
-│   └── Titanic-Dataset.csv             # fetch_titanic_csv* で取得
+│   └── .gitkeep                        # 空ディレクトリ保持用（CSVは同梱しない）
+├── docs/
+│   └── StoreProcedure_Pythonハンズオン概要.pdf
 ├── scripts/
-│   ├── fetch_titanic_csv.sh            # Kaggle からデータ取得 (Mac/Linux)
-│   ├── fetch_titanic_csv.ps1           # Kaggle からデータ取得 (Windows)
 │   ├── run_all.sh                      # パイプライン一括実行 (Mac/Linux)
 │   ├── run_all.ps1                     # パイプライン一括実行 (Windows)
 │   ├── run_cleanup.sh                  # クリーンアップ実行 (Mac/Linux)
