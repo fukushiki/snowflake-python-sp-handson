@@ -22,7 +22,9 @@ Titanicデータセットを用いてSnowflakeのStored Procedure機能(Python�
 │   ├── fetch_titanic_csv.sh            # Kaggle からデータ取得 (Mac/Linux)
 │   ├── fetch_titanic_csv.ps1           # Kaggle からデータ取得 (Windows)
 │   ├── run_all.sh                      # パイプライン一括実行 (Mac/Linux)
-│   └── run_all.ps1                     # パイプライン一括実行 (Windows)
+│   ├── run_all.ps1                     # パイプライン一括実行 (Windows)
+│   ├── run_cleanup.sh                  # クリーンアップ実行 (Mac/Linux)
+│   └── run_cleanup.ps1                 # クリーンアップ実行 (Windows)
 ├── src/
 │   └── snowflake/
 │       ├── python/
@@ -150,7 +152,7 @@ snow sql -q "select current_version();" --connection <connection-name>
 ## Snowflake CLI実行例
 
 Snowsight（Worksheet）で確認済みの手順を、以下のCLIで再現する。  
-これらの内容をまとめたものが'scripts/run_all'(sh/ps1)に記載されている。
+これらの内容をまとめたものが `scripts/run_all`（sh/ps1）に記載されている。
 
 ```bash
 # 接続確認
@@ -177,4 +179,14 @@ snow sql -f src/snowflake/workspace/004_Bronze_to_Silver_import.sql --connection
 
 # 7) SILVER -> GOLD
 snow sql -f src/snowflake/workspace/005_Silver_to_Gold_import.sql --connection <connection-name>
+```
+
+クリーンアップは以下で実行できる。
+
+```bash
+# Mac/Linux
+./scripts/run_cleanup.sh
+
+# Windows PowerShell
+.\scripts\run_cleanup.ps1
 ```
