@@ -1,0 +1,141 @@
+name: Auto Release on PR Merge
+
+# PRがmainブランチにマージされたときに起動
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: auto-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    # マージされたPRにリリース系ラベルが付いている場合のみ実行
+    # ラベルなしマージではリリースをスキップする
+    if: |
+      github.event_name == 'workflow_dispatch' || (
+        github.event.pull_request.merged == true && (
+          contains(github.event.pull_request.labels.*.name, 'release:major') ||
+          contains(github.event.pull_request.labels.*.name, 'release:minor') ||
+          contains(github.event.pull_request.labels.*.name, 'release:patch')
+        )
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # タグ作成・リリース作成に必要
+    env:
+      RELEASE_KIND_LABELS: release:major,release:minor,release:patch
+
+    steps:
+      # fetch-depth: 0 で全タグを取得（省略するとgit tagが見えずバージョン計算が狂う）
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate required files
+        run: |
+          test -f docs/handson.md
+          test -f docs/README.template.md
+          test -f data/.gitkeep
+          test -f src/snowflake/python/transform.py
+          test -f src/snowflake/python/predict.py
+
+      # vX.Y.Z 形式のタグのみを対象に最新タグを取得
+      # タグが一つもない場合は v0.0.0 を起点とする
+      - name: Get latest tag
+        id: latest_tag
+        run: |
+          LATEST=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+          if [ -z "$LATEST" ]; then
+            LATEST="v0.0.0"
+          fi
+          echo "tag=$LATEST" >> $GITHUB_OUTPUT
+          echo "Latest tag: $LATEST"
+
+      # PRラベルに応じてセマンティックバージョンを計算する
+      # 優先順: release:major > release:minor > release:patch
+      - name: Calculate next version
+        id: next_version
+        run: |
+          LATEST="${{ steps.latest_tag.outputs.tag }}"
+          MAJOR=$(echo $LATEST | sed 's/v//' | cut -d. -f1)
+          MINOR=$(echo $LATEST | sed 's/v//' | cut -d. -f2)
+          PATCH=$(echo $LATEST | sed 's/v//' | cut -d. -f3)
+
+          LABELS="${{ join(github.event.pull_request.labels.*.name, ',') }}"
+
+          if echo "$LABELS" | grep -q "release:major"; then
+            MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0   # メジャー更新: minor/patch をリセット
+          elif echo "$LABELS" | grep -q "release:minor"; then
+            MINOR=$((MINOR + 1)); PATCH=0             # マイナー更新: patch をリセット
+          else
+            PATCH=$((PATCH + 1))                      # パッチ更新
+          fi
+
+          NEXT="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "version=$NEXT" >> "$GITHUB_OUTPUT"
+          echo "Next version: $NEXT"
+
+      - name: Build release metadata
+        id: release_meta
+        run: |
+          VERSION="${{ steps.next_version.outputs.version }}"
+          ARCHIVE="snowflake-handson-spp-${VERSION}.zip"
+          echo "archive=$ARCHIVE" >> "$GITHUB_OUTPUT"
+
+      # Marp CLI のインストールに必要
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Marp CLI: handson.md → PDF 変換に使用
+      # fonts-ipafont: 日本語テキストのレンダリングに必要
+      - name: Install Marp CLI and IPA fonts
+        run: |
+          npm install -g @marp-team/marp-cli
+          sudo apt-get update -qq && sudo apt-get install -y fonts-ipafont
+
+      # --allow-local-files: スライド内のローカル画像参照を許可
+      # --html: Marpスライド内でHTMLタグを使用可能にする
+      - name: Export handson.md to PDF
+        run: |
+          marp docs/handson.md \
+            --pdf \
+            --allow-local-files \
+            --html \
+            --output "docs/StoreProcedure_Pythonハンズオン概要.pdf"
+
+      # 配布用ZIPを作成（docs配下は指定PDFのみ）
+      - name: Create release zip
+        run: |
+          rm -rf release_bundle
+          mkdir -p release_bundle/docs release_bundle/data
+          cp docs/README.template.md release_bundle/README.md
+          cp "docs/StoreProcedure_Pythonハンズオン概要.pdf" release_bundle/docs/
+          cp data/.gitkeep release_bundle/data/.gitkeep
+          cp -R scripts release_bundle/
+          rm -f release_bundle/scripts/fetch_titanic_csv.sh
+          rm -f release_bundle/scripts/fetch_titanic_csv.ps1
+          cp -R src release_bundle/
+          (
+            cd release_bundle
+            zip -r "../${{ steps.release_meta.outputs.archive }}" .
+          )
+
+      # PRタイトル・ボディをリリースノートに使用し、GitHub自動生成ノートも追記
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.next_version.outputs.version }}
+          name: ${{ steps.next_version.outputs.version }}
+          body: |
+            ## ${{ github.event.pull_request.title || 'Manual release' }}
+
+            ${{ github.event.pull_request.body || '- Auto release by workflow_dispatch or PR without body.' }}
+            - Labels checked: ${{ env.RELEASE_KIND_LABELS }}
+          generate_release_notes: true  # コミット一覧を自動追記
+          files: ${{ steps.release_meta.outputs.archive }}
