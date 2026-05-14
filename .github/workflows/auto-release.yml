@@ -133,9 +133,15 @@ jobs:
           tag_name: ${{ steps.next_version.outputs.version }}
           name: ${{ steps.next_version.outputs.version }}
           body: |
-            ## ${{ github.event.pull_request.title || 'Manual release' }}
+            ## リリース概要
 
-            ${{ github.event.pull_request.body || '- Auto release by workflow_dispatch or PR without body.' }}
-            - Labels checked: ${{ env.RELEASE_KIND_LABELS }}
+            ### PRタイトル
+            ${{ github.event.pull_request.title || '手動実行によるリリース' }}
+
+            ### 変更内容
+            ${{ github.event.pull_request.body || '- workflow_dispatch または本文なしPRにより自動リリースを実行しました。' }}
+
+            ### リリース種別ラベル
+            - 判定対象: ${{ env.RELEASE_KIND_LABELS }}
           generate_release_notes: true  # コミット一覧を自動追記
           files: ${{ steps.release_meta.outputs.archive }}

@@ -9,7 +9,7 @@ type: README
 
 SnowflakeのStored Procedure機能を利用したPython実装について学ぶためのリポジトリです。  
 Titanicデータセットを用いてSnowflakeのStored Procedure機能(Python実行)を学ぶことができます。  
-詳しい内容はZennに書いた記事[xxx](xxx)を参考にしてください。  
+詳しい内容はZennに書いた記事[Snowflake】Python Stored ProcedureでTitanicデータの予測パイプラインを試せるハンズオンを作ってみた](https://zenn.dev/fukushiki/articles/c4cd9896d0a3fd)を参考にしてください。  
 
 
 ## ディレクトリ構成
